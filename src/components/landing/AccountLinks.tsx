@@ -1,13 +1,15 @@
+import { Link } from 'react-router-dom'
+
 function AccountLinks() {
   return (
     <div className="account-links">
-      <button type="button" className="text-button">
+      <Link to="/login" className="text-button">
         Log in
-      </button>
+      </Link>
 
-      <button type="button" className="text-button">
+      <Link to="/register" className="text-button">
         Create account
-      </button>
+      </Link>
     </div>
   )
 }
