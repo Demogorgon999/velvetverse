@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import '../App.css'
+import Hero from '../components/landing/Hero'
 
 function LandingPage() {
   const [isAdult, setIsAdult] = useState(false)
