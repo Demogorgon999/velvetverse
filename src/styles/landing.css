@@ -1,0 +1,173 @@
+.landing-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(127, 29, 85, 0.36),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #120814 0%,
+      #08050a 55%,
+      #160713 100%
+    );
+}
+
+.hero-card {
+  width: min(100%, 720px);
+  padding: 64px 48px;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+
+  background: rgba(20, 11, 22, 0.86);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
+
+  text-align: center;
+}
+
+.hero-card .eyebrow {
+  margin: 0 0 16px;
+
+  color: #e5a8c8;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero-card h1 {
+  margin: 0;
+
+  color: #fff7fb;
+  font-size: clamp(3rem, 10vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.tagline {
+  max-width: 580px;
+  margin: 28px auto 36px;
+
+  color: #cdbfc9;
+  font-size: 1.1rem;
+  line-height: 1.75;
+}
+
+.age-confirmation,
+.checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 22px;
+
+  color: #f3e8ef;
+}
+
+.age-confirmation input,
+.checkbox input {
+  width: 18px;
+  height: 18px;
+
+  accent-color: #c03c7a;
+}
+
+.hero-card .primary-button,
+.hero-card > button,
+.checkbox + button {
+  width: min(100%, 340px);
+  padding: 15px 24px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    135deg,
+    #d34a8a,
+    #8b2c72
+  );
+
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.hero-card .primary-button:not(:disabled):hover,
+.hero-card > button:not(:disabled):hover,
+.checkbox + button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 35px rgba(192, 60, 122, 0.32);
+}
+
+.hero-card button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.account-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+
+  margin-top: 24px;
+}
+
+.text-button {
+  display: inline-block;
+  padding: 4px;
+
+  border: 0;
+  background: transparent;
+
+  color: #e5a8c8;
+  font: inherit;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: #ffffff;
+}
+
+.disclaimer {
+  max-width: 540px;
+  margin: 32px auto 0;
+
+  color: #837781;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .hero-card {
+    padding: 48px 24px;
+    border-radius: 22px;
+  }
+
+  .age-confirmation,
+  .checkbox {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .account-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

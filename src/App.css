@@ -1,163 +1,140 @@
-#root {
-  min-height: 100vh;
+/* ==========================
+   DASHBOARD
+========================== */
+
+.dashboard-page {
+  min-height: calc(100vh - 72px);
+  background: radial-gradient(circle at top, #2a0b22 0%, #09060d 70%);
+  padding: 60px 40px;
 }
 
-.landing-page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background:
-    radial-gradient(circle at top, rgba(127, 29, 85, 0.35), transparent 42%),
-    linear-gradient(135deg, #120814 0%, #08050a 55%, #160713 100%);
-}
-
-.hero-card {
-  width: min(100%, 720px);
-  padding: 64px 48px;
+.dashboard-hero {
+  max-width: 900px;
+  margin: 0 auto;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
-  background: rgba(20, 11, 22, 0.84);
-  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(18px);
 }
 
-.eyebrow {
-  margin: 0 0 16px;
-  color: #e5a8c8;
-  font-size: 0.82rem;
+.dashboard-hero h1 {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  color: #ffffff;
+  margin: 20px 0;
+}
+
+.dashboard-hero p {
+  color: rgba(255,255,255,.75);
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.search-bar input {
+  width: min(700px, 90%);
+  padding: 18px 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255,255,255,.45);
+}
+
+.search-bar input:focus {
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255,105,180,.15);
+}/* ==========================
+   DASHBOARD FIXES
+========================== */
+
+.dashboard-hero .eyebrow {
+  display: block;
+  margin: 0 0 18px;
+  color: #f0a6cf;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
-.hero-card h1 {
-  margin: 0;
-  font-size: clamp(3rem, 10vw, 6rem);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
-  color: #fff7fb;
+.dashboard-hero h1 {
+  margin: 0 auto 18px;
+  max-width: 950px;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 1.05;
 }
 
-.tagline {
-  max-width: 580px;
-  margin: 28px auto 36px;
-  color: #cdbfc9;
-  font-size: 1.1rem;
-  line-height: 1.75;
+.dashboard-hero > p:not(.eyebrow) {
+  margin: 0 auto 28px;
 }
 
-.age-confirmation {
+/* Keep navbar styling active */
+.site-navbar {
+  min-height: 72px;
+  padding: 0 40px;
+  background: rgba(18, 8, 24, 0.96);
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 22px;
-  color: #f3e8ef;
+  justify-content: space-between;
 }
 
-.age-confirmation input {
-  width: 18px;
-  height: 18px;
-  accent-color: #c03c7a;
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
 }
 
-.primary-button {
-  width: min(100%, 340px);
-  padding: 15px 24px;
-  border: 0;
+.navbar-account {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}/* ==========================
+   NAVBAR VISUAL FIX
+========================== */
+
+.navbar-logo {
+  color: #ff69b4;
+  font-size: 2rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navbar-links a {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.navbar-links a:hover {
+  color: #ffffff;
+}
+
+.navbar-links a.active {
+  color: #ff69b4;
+}
+
+.credit-badge {
+  padding: 10px 16px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #d34a8a, #8b2c72);
-  color: white;
-  font: inherit;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.profile-button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4da6, #9b2cff);
+  color: #ffffff;
   font-weight: 700;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    opacity 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.primary-button:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 35px rgba(192, 60, 122, 0.32);
-}
-
-.primary-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.38;
-}
-
-.account-links {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-top: 24px;
-}
-
-.text-button {
-  border: 0;
-  padding: 4px;
-  background: transparent;
-  color: #e5a8c8;
-  font: inherit;
-  cursor: pointer;
-}
-
-.text-button:hover {
-  color: #fff;
-}
-
-.disclaimer {
-  margin: 32px auto 0;
-  max-width: 540px;
-  color: #837781;
-  font-size: 0.82rem;
-  line-height: 1.6;
-}
-
-@media (max-width: 600px) {
-  .hero-card {
-    padding: 48px 24px;
-    border-radius: 22px;
-  }
-
-  .age-confirmation {
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .account-links {
-    flex-direction: column;
-    gap: 10px;
-  }
-}/* Authentication Forms */
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 30px;
-}
-
-.auth-form label {
-  text-align: left;
-  color: #ddd;
-  font-weight: 600;
-}
-
-.auth-form input {
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #555;
-  background: #1b1b1b;
-  color: white;
-  font-size: 16px;
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #7c5cff;
-  box-shadow: 0 0 10px rgba(124, 92, 255, 0.4);
 }
