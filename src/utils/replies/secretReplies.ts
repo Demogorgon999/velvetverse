@@ -4,20 +4,14 @@ import { createReply } from './replyFactory'
 export const getSecretReply: ReplyHandler = ({
   context,
   characterName,
-  lowerMessage,
+  intent,
 }) => {
   const {
     relationshipStage,
     brain,
   } = context
 
-  const isSecretRequest =
-    lowerMessage.includes('tell me a secret') ||
-    lowerMessage.includes('what are you hiding') ||
-    lowerMessage.includes('do you have any secrets') ||
-    lowerMessage.includes('share a secret with me')
-
-  if (!isSecretRequest) {
+  if (intent !== 'Secrets') {
     return null
   }
 

@@ -8,12 +8,12 @@ export const getGreetingReply: ReplyHandler = ({
 }) => {
   const { memory } = context
 
-  const isGreeting =
-    /\b(hello|hi|hey)\b/i.test(userMessage)
+ const isGreeting =
+  /\b(hello|hi|hey)\b/i.test(userMessage)
 
-  if (!isGreeting) {
+if (!isGreeting) {
     return null
-  }
+}
 
   if (memory.userName) {
     return createReply(

@@ -5,8 +5,13 @@ export const getIdentityReply: ReplyHandler = ({
   context,
   characterName,
   lowerMessage,
+  intent,
 }) => {
   const { brain } = context
+
+  if (intent !== 'Identity') {
+    return null
+  }
 
   if (
     lowerMessage.includes('how old are you') ||

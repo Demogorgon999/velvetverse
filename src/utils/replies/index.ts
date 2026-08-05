@@ -4,6 +4,8 @@ import type {
   ReplyHandler,
   ReplyHandlerArgs,
 } from './types'
+import { detectIntent } from '../intent'
+import { makeCharacterDecision } from '../decisionEngine'
 import { getGreetingReply } from './greetingReplies'
 import { getGratitudeReply } from './gratitudeReplies'
 import { getSecretReply } from './secretReplies'
@@ -26,11 +28,20 @@ export function getCharacterReply(
   characterName: string,
   userMessage: string,
 ): CharacterReply {
+  const intent = detectIntent(userMessage)
+
+  const decision = makeCharacterDecision({
+    context,
+    intent,
+  })
+
   const args: ReplyHandlerArgs = {
     context,
     characterName,
     userMessage,
     lowerMessage: userMessage.toLowerCase(),
+    intent,
+    decision,
   }
 
   for (const handler of replyHandlers) {

@@ -4,7 +4,9 @@ import Navbar from '../components/Navbar'
 import ChatHeader from '../components/Chat/ChatHeader'
 import ChatSidebar from '../components/Chat/ChatSidebar'
 import MessageBubble from '../components/Chat/MessageBubble'
-import { characters } from '../data/characters'
+import {
+  getCharacterById,
+} from '../services/characterRepository'
 import {
   getCharacterMemory,
   getRelationshipProgress,
@@ -17,6 +19,7 @@ import {
 import {
   getCharacterEngineContext,
 } from '../utils/characterEngine'
+
 import {
   getCharacterReply,
 } from '../utils/replies'
@@ -151,12 +154,12 @@ function loadConversations(
 function ChatPage() {
   const { id } = useParams()
 
-  const character = characters.find(
-    (item) => item.id === Number(id),
-  )
+const character = getCharacterById(
+  Number(id),
+)
 
-  const storageKey =
-    `velvetverse-chat-${id ?? 'unknown'}`
+const storageKey =
+  `velvetverse-chat-${id ?? 'unknown'}`
 
   const [message, setMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)

@@ -4,12 +4,112 @@ import {
   useParams,
 } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import PersonalitySlider from '../components/creator/PersonalitySlider'
+import { createDefaultPersonality } from '../database/defaultTraits'
 import { calculateCharacterScore } from '../services/characterScore'
 import {
   createCharacter,
   getCharacterById,
   updateCharacter,
 } from '../services/characterService'
+import type { PersonalityTraits } from '../types/characterTemplate'
+
+const personalityTraitDefinitions: Array<{
+  key: keyof PersonalityTraits
+  label: string
+  description: string
+}> = [
+  {
+    key: 'kindness',
+    label: 'Kindness',
+    description:
+      'How gentle, considerate, and caring the character tends to be.',
+  },
+  {
+    key: 'curiosity',
+    label: 'Curiosity',
+    description:
+      'How strongly the character seeks new knowledge and experiences.',
+  },
+  {
+    key: 'bravery',
+    label: 'Bravery',
+    description:
+      'How readily the character faces danger, uncertainty, or conflict.',
+  },
+  {
+    key: 'patience',
+    label: 'Patience',
+    description:
+      'How calmly the character handles delays, mistakes, and frustration.',
+  },
+  {
+    key: 'confidence',
+    label: 'Confidence',
+    description:
+      'How self-assured and decisive the character appears.',
+  },
+  {
+    key: 'humour',
+    label: 'Humour',
+    description:
+      'How often the character jokes, teases, or uses playful wit.',
+  },
+  {
+    key: 'jealousy',
+    label: 'Jealousy',
+    description:
+      'How strongly the character reacts to rivalry or divided attention.',
+  },
+  {
+    key: 'loyalty',
+    label: 'Loyalty',
+    description:
+      'How deeply the character values commitment and protects close bonds.',
+  },
+  {
+    key: 'intelligence',
+    label: 'Intelligence',
+    description:
+      'How analytical, strategic, and knowledgeable the character appears.',
+  },
+  {
+    key: 'empathy',
+    label: 'Empathy',
+    description:
+      'How easily the character recognises and responds to others’ feelings.',
+  },
+]
+
+function getPersonalitySummary(
+  traits: PersonalityTraits,
+) {
+  const strongestTraits = personalityTraitDefinitions
+    .map((definition) => ({
+      ...definition,
+      value: traits[definition.key],
+    }))
+    .sort((first, second) => second.value - first.value)
+    .slice(0, 3)
+
+  const labels = strongestTraits.map(
+    (trait) => trait.label.toLowerCase(),
+  )
+
+  if (labels.length === 0) {
+    return 'A balanced and adaptable personality.'
+  }
+
+  if (labels.length === 1) {
+    return `A strongly ${labels[0]} personality.`
+  }
+
+  if (labels.length === 2) {
+    return `A ${labels[0]} and ${labels[1]} personality.`
+  }
+
+  return `A ${labels[0]}, ${labels[1]}, and ${labels[2]} personality.`
+}
 
 function CreatorStudioPage() {
   const { characterId } = useParams()
@@ -26,6 +126,10 @@ function CreatorStudioPage() {
   const [description, setDescription] = useState('')
   const [greeting, setGreeting] = useState('')
   const [personality, setPersonality] = useState('')
+  const [personalityTraits, setPersonalityTraits] =
+    useState<PersonalityTraits>(() =>
+      createDefaultPersonality(),
+    )
   const [visibility, setVisibility] = useState('Private')
   const [world, setWorld] = useState('')
   const [voice, setVoice] = useState('Elegant')
@@ -55,6 +159,9 @@ function CreatorStudioPage() {
     setDescription(existingCharacter.description)
     setGreeting(existingCharacter.greeting)
     setPersonality(existingCharacter.personality)
+    setPersonalityTraits(
+      existingCharacter.personalityTraits,
+    )
     setVisibility(existingCharacter.visibility)
     setWorld(existingCharacter.world)
     setVoice(existingCharacter.voice)
@@ -63,6 +170,7 @@ function CreatorStudioPage() {
     setAdultContentEnabled(
       existingCharacter.adultContentEnabled,
     )
+    setImagePreview(existingCharacter.image)
   }, [editingCharacterId, navigate])
 
   const initials = useMemo(() => {
@@ -78,6 +186,11 @@ function CreatorStudioPage() {
       .toUpperCase()
   }, [name])
 
+  const personalitySummary = useMemo(
+    () => getPersonalitySummary(personalityTraits),
+    [personalityTraits],
+  )
+
   const score = calculateCharacterScore({
     name,
     title,
@@ -92,6 +205,16 @@ function CreatorStudioPage() {
 
   const completionScore = score.completionScore
 
+  function updatePersonalityTrait(
+    trait: keyof PersonalityTraits,
+    value: number,
+  ) {
+    setPersonalityTraits((currentTraits) => ({
+      ...currentTraits,
+      [trait]: value,
+    }))
+  }
+
   function handleImageChange(
     event: React.ChangeEvent<HTMLInputElement>,
   ) {
@@ -101,7 +224,7 @@ function CreatorStudioPage() {
       return
     }
 
-    if (imagePreview) {
+    if (imagePreview.startsWith('blob:')) {
       URL.revokeObjectURL(imagePreview)
     }
 
@@ -121,12 +244,14 @@ function CreatorStudioPage() {
       description,
       greeting,
       personality,
+      personalityTraits,
       visibility,
       world,
       voice,
       memoryEnabled,
       romanceEnabled,
       adultContentEnabled,
+      image: imagePreview,
       status: 'draft' as const,
     }
 
@@ -327,6 +452,56 @@ function CreatorStudioPage() {
                 required
               />
 
+              <div className="personality-builder">
+                <div className="personality-builder-heading">
+                  <div>
+                    <h3>Personality traits</h3>
+                    <p>
+                      Shape the deeper behavioural profile used by
+                      the VelvetVerse Character Engine.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPersonalityTraits(
+                        createDefaultPersonality(),
+                      )
+                    }
+                  >
+                    Reset
+                  </button>
+                </div>
+
+                <div className="personality-summary">
+                  <span>Live personality summary</span>
+                  <p>{personalitySummary}</p>
+                </div>
+
+                <div className="personality-slider-list">
+                  {personalityTraitDefinitions.map(
+                    (trait) => (
+                      <PersonalitySlider
+                        key={trait.key}
+                        id={`personality-${trait.key}`}
+                        label={trait.label}
+                        description={trait.description}
+                        value={
+                          personalityTraits[trait.key]
+                        }
+                        onChange={(value) =>
+                          updatePersonalityTrait(
+                            trait.key,
+                            value,
+                          )
+                        }
+                      />
+                    ),
+                  )}
+                </div>
+              </div>
+
               <label htmlFor="character-voice">
                 Voice style
               </label>
@@ -522,6 +697,11 @@ function CreatorStudioPage() {
                     {description ||
                       'Your short character description will appear here.'}
                   </p>
+
+                  <div className="creator-preview-personality">
+                    <strong>Personality profile</strong>
+                    <p>{personalitySummary}</p>
+                  </div>
 
                   <button type="button">
                     Start Conversation

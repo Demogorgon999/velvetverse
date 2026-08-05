@@ -4,14 +4,11 @@ import { createReply } from './replyFactory'
 export const getGratitudeReply: ReplyHandler = ({
   context,
   characterName,
-  lowerMessage,
+  intent,
 }) => {
   const { mood } = context
 
-  if (
-    !lowerMessage.includes('thank you') &&
-    !lowerMessage.includes('thanks')
-  ) {
+  if (intent !== 'Gratitude') {
     return null
   }
 
