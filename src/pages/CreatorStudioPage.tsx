@@ -81,6 +81,17 @@ const personalityTraitDefinitions: Array<{
   },
 ]
 
+function linesToItems(value: string): string[] {
+  return value
+    .split('\n')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function itemsToLines(items: string[]): string {
+  return items.join('\n')
+}
+
 function getPersonalitySummary(
   traits: PersonalityTraits,
 ) {
@@ -130,6 +141,12 @@ function CreatorStudioPage() {
     useState<PersonalityTraits>(() =>
       createDefaultPersonality(),
     )
+  const [knowledge, setKnowledge] = useState<string[]>([])
+  const [secrets, setSecrets] = useState<string[]>([])
+  const [fears, setFears] = useState<string[]>([])
+  const [goals, setGoals] = useState<string[]>([])
+  const [likes, setLikes] = useState<string[]>([])
+  const [dislikes, setDislikes] = useState<string[]>([])
   const [visibility, setVisibility] = useState('Private')
   const [world, setWorld] = useState('')
   const [voice, setVoice] = useState('Elegant')
@@ -162,6 +179,12 @@ function CreatorStudioPage() {
     setPersonalityTraits(
       existingCharacter.personalityTraits,
     )
+    setKnowledge(existingCharacter.knowledge)
+    setSecrets(existingCharacter.secrets)
+    setFears(existingCharacter.fears)
+    setGoals(existingCharacter.goals)
+    setLikes(existingCharacter.likes)
+    setDislikes(existingCharacter.dislikes)
     setVisibility(existingCharacter.visibility)
     setWorld(existingCharacter.world)
     setVoice(existingCharacter.voice)
@@ -232,12 +255,8 @@ function CreatorStudioPage() {
     setImagePreview(previewUrl)
   }
 
-  function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault()
-
-    const characterData = {
+  function buildCharacterData() {
+    return {
       name,
       title,
       category,
@@ -245,6 +264,12 @@ function CreatorStudioPage() {
       greeting,
       personality,
       personalityTraits,
+      knowledge,
+      secrets,
+      fears,
+      goals,
+      likes,
+      dislikes,
       visibility,
       world,
       voice,
@@ -254,25 +279,65 @@ function CreatorStudioPage() {
       image: imagePreview,
       status: 'draft' as const,
     }
+  }
+
+  function saveDraft() {
+    const characterData = buildCharacterData()
 
     if (editingCharacterId) {
-      const updatedCharacter = updateCharacter(
+      return updateCharacter(
         editingCharacterId,
         characterData,
       )
-
-      if (!updatedCharacter) {
-        window.alert('Character could not be updated.')
-        return
-      }
-
-      window.alert('Character updated.')
-    } else {
-      createCharacter(characterData)
-      window.alert('Character created.')
     }
 
+    return createCharacter(characterData)
+  }
+
+  function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault()
+
+    const savedCharacter = saveDraft()
+
+    if (!savedCharacter) {
+      window.alert('Character could not be saved.')
+      return
+    }
+
+    window.alert(
+      editingCharacterId
+        ? 'Character updated.'
+        : 'Character created.',
+    )
+
     navigate('/my-characters')
+  }
+
+  function handleTestCharacter() {
+    if (
+      !name.trim() ||
+      !title.trim() ||
+      !description.trim() ||
+      !greeting.trim() ||
+      !personality.trim() ||
+      !world.trim()
+    ) {
+      window.alert(
+        'Complete the required character fields before testing.',
+      )
+      return
+    }
+
+    const savedCharacter = saveDraft()
+
+    if (!savedCharacter) {
+      window.alert('Character could not be saved for testing.')
+      return
+    }
+
+    navigate(`/chat/${savedCharacter.id}`)
   }
 
   return (
@@ -527,6 +592,117 @@ function CreatorStudioPage() {
                 <span>03</span>
 
                 <div>
+                  <h2>Character Brain</h2>
+
+                  <p>
+                    Add one item per line. These details feed the
+                    character's knowledge, motives, and personal history.
+                  </p>
+                </div>
+              </div>
+
+              <label htmlFor="character-knowledge">
+                Knowledge
+              </label>
+
+              <textarea
+                id="character-knowledge"
+                value={itemsToLines(knowledge)}
+                onChange={(event) =>
+                  setKnowledge(
+                    linesToItems(event.target.value),
+                  )
+                }
+                placeholder={'Ancient demon history\nSoul harvesting\nInfernal politics'}
+                rows={5}
+              />
+
+              <label htmlFor="character-secrets">
+                Secrets
+              </label>
+
+              <textarea
+                id="character-secrets"
+                value={itemsToLines(secrets)}
+                onChange={(event) =>
+                  setSecrets(
+                    linesToItems(event.target.value),
+                  )
+                }
+                placeholder={'She was once human.\nShe secretly fears Heaven.'}
+                rows={5}
+              />
+
+              <label htmlFor="character-goals">
+                Goals
+              </label>
+
+              <textarea
+                id="character-goals"
+                value={itemsToLines(goals)}
+                onChange={(event) =>
+                  setGoals(
+                    linesToItems(event.target.value),
+                  )
+                }
+                placeholder={'Protect the Infernal Gate\nExpand her kingdom'}
+                rows={5}
+              />
+
+              <label htmlFor="character-fears">
+                Fears
+              </label>
+
+              <textarea
+                id="character-fears"
+                value={itemsToLines(fears)}
+                onChange={(event) =>
+                  setFears(
+                    linesToItems(event.target.value),
+                  )
+                }
+                placeholder={'Divine weapons\nLosing her throne'}
+                rows={5}
+              />
+
+              <label htmlFor="character-likes">
+                Likes
+              </label>
+
+              <textarea
+                id="character-likes"
+                value={itemsToLines(likes)}
+                onChange={(event) =>
+                  setLikes(
+                    linesToItems(event.target.value),
+                  )
+                }
+                placeholder={'Moonlight\nPoetry\nAncient ruins'}
+                rows={4}
+              />
+
+              <label htmlFor="character-dislikes">
+                Dislikes
+              </label>
+
+              <textarea
+                id="character-dislikes"
+                value={itemsToLines(dislikes)}
+                onChange={(event) =>
+                  setDislikes(
+                    linesToItems(event.target.value),
+                  )
+                }
+                placeholder={'Betrayal\nCowards\nAngels'}
+                rows={4}
+              />
+            </section>
+
+            <section className="creator-form-section">
+              <div className="creator-section-heading">
+                <span>04</span>
+
+                <div>
                   <h2>World and memory</h2>
 
                   <p>
@@ -612,7 +788,7 @@ function CreatorStudioPage() {
 
             <section className="creator-form-section">
               <div className="creator-section-heading">
-                <span>04</span>
+                <span>05</span>
 
                 <div>
                   <h2>Publishing</h2>
@@ -648,6 +824,14 @@ function CreatorStudioPage() {
                   {editingCharacterId
                     ? 'Save Changes'
                     : 'Save Draft'}
+                </button>
+
+                <button
+                  type="button"
+                  className="creator-secondary-button"
+                  onClick={handleTestCharacter}
+                >
+                  Test Character
                 </button>
 
                 <button

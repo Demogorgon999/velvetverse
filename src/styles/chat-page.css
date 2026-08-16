@@ -866,4 +866,61 @@
   color: rgba(255, 255, 255, 0.42);
 
   font-size: 0.68rem;
+}/* =========================================
+   LIFE UPDATE CARD
+========================================= */
+
+.chat-life-update {
+  margin: 18px 22px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-left: 4px solid var(--accent-color);
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,.03),
+    rgba(255,255,255,.015)
+  );
+}
+
+.chat-life-update-heading{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:14px;
+}
+
+.chat-life-update-heading span{
+  color:var(--accent-color);
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  font-size:.68rem;
+  font-weight:800;
+}
+
+.chat-life-update-heading strong{
+  color:#fff;
+  font-size:1.15rem;
+  font-weight:700;
+}
+
+.chat-life-update p{
+  margin:0;
+  color:rgba(255,255,255,.78);
+  line-height:1.75;
+}
+
+.chat-life-update-meta{
+  display:flex;
+  gap:18px;
+  margin-top:16px;
+}
+
+.chat-life-update-meta span{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:rgba(255,255,255,.55);
+  font-size:.78rem;
+  font-weight:600;
 }

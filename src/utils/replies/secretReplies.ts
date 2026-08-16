@@ -1,102 +1,130 @@
 import type { ReplyHandler } from './types'
 import { createReply } from './replyFactory'
+import {
+  applyTypingDelayModifier,
+} from '../emotionEngine'
 
 export const getSecretReply: ReplyHandler = ({
-  context,
   characterName,
   intent,
+  responsePlan,
 }) => {
-  const {
-    relationshipStage,
-    brain,
-  } = context
-
   if (intent !== 'Secrets') {
     return null
   }
 
-  switch (relationshipStage) {
-    case 'Hostile':
+  const {
+    decision,
+    emotion,
+    relevantSecrets,
+    internalThought,
+  } = responsePlan
+
+  switch (decision.decision) {
+    case 'Refuse':
       return createReply(
-        `${characterName} gives you a cold look. "I owe you no secrets."`,
+        `${characterName} gives you a guarded look. "I owe you no secrets."`,
         {
-          emotion: 'Irritated',
-          animation: 'idle',
+          emotion: emotion.emotion,
+          animation: emotion.animation,
           relationshipDelta: -1,
-          internalThought:
-            'They have not earned the right to ask me that.',
+          typingDelay: applyTypingDelayModifier(
+            1800,
+            emotion.typingDelayModifier,
+          ),
+          internalThought,
         },
       )
 
-    case 'Stranger':
-      return createReply(
-        `${characterName} studies you carefully. "We barely know one another."`,
-        {
-          emotion: 'Suspicious',
-          animation: 'thinking',
-          internalThought:
-            'They are asking for trust before earning it.',
-        },
-      )
-
-    case 'Acquaintance':
+    case 'Delay':
       return createReply(
         `${characterName} lowers her voice slightly. "Perhaps when trust has had time to grow."`,
         {
-          emotion: 'Suspicious',
-          animation: 'thinking',
+          emotion: emotion.emotion,
+          animation: emotion.animation,
+          typingDelay: applyTypingDelayModifier(
+            2100,
+            emotion.typingDelayModifier,
+          ),
+          internalThought,
         },
       )
 
-    case 'Friend':
-    case 'Close Friend':
+    case 'Deflect':
       return createReply(
-        `${characterName} hesitates. "Perhaps... but not today."`,
+        `${characterName} gives a faint smile. "There are safer subjects we could discuss."`,
         {
-          emotion: 'Curious',
-          animation: 'thinking',
-          internalThought:
-            'I trust them more than before, but not completely.',
+          emotion: emotion.emotion,
+          animation: emotion.animation,
+          typingDelay: applyTypingDelayModifier(
+            1900,
+            emotion.typingDelayModifier,
+          ),
+          internalThought,
         },
       )
 
-    case 'Trusted':
-    case 'Best Friend':
-    case 'Soulmate': {
+    case 'RevealMinor': {
+      const secret = relevantSecrets[0]
+
+      return createReply(
+        secret
+          ? `${characterName} hesitates before speaking. "${secret}"`
+          : `${characterName} hesitates. "There is little I am ready to reveal."`,
+        {
+          emotion: emotion.emotion,
+          animation: emotion.animation,
+          relationshipDelta: 1,
+          typingDelay: applyTypingDelayModifier(
+            2300,
+            emotion.typingDelayModifier,
+          ),
+          internalThought,
+        },
+      )
+    }
+
+    case 'RevealMajor': {
       const secret =
-        brain.secrets.length > 0
-          ? brain.secrets[
+        relevantSecrets.length > 0
+          ? relevantSecrets[
               Math.floor(
                 Math.random() *
-                  brain.secrets.length,
+                  relevantSecrets.length,
               )
             ]
           : undefined
 
-      if (secret) {
-        return createReply(
-          `${characterName} lowers her voice. "${secret}"`,
-          {
-            emotion: 'Affectionate',
-            animation: 'thinking',
-            relationshipDelta: 1,
-            typingDelay: 2600,
-            internalThought:
-              'I trust them enough to reveal something real.',
-          },
-        )
-      }
-
       return createReply(
-        `${characterName} gives a faint smile. "There are things I have never told another soul."`,
+        secret
+          ? `${characterName} lowers her voice. "${secret}"`
+          : `${characterName} gives a faint smile. "There are things I have never told another soul."`,
         {
-          emotion: 'Affectionate',
-          animation: 'smile',
-          internalThought:
-            'Some truths are still difficult to speak aloud.',
+          emotion: emotion.emotion,
+          animation: emotion.animation,
+          relationshipDelta: 1,
+          typingDelay: applyTypingDelayModifier(
+            2700,
+            emotion.typingDelayModifier,
+          ),
+          internalThought,
         },
       )
     }
+
+    case 'Allow':
+      return createReply(
+        `${characterName} studies you for a moment. "Perhaps there is something I can tell you."`,
+        {
+          emotion: emotion.emotion,
+          animation: emotion.animation,
+          typingDelay: applyTypingDelayModifier(
+            2000,
+            emotion.typingDelayModifier,
+          ),
+          internalThought,
+        },
+      )
 
     default:
       return null

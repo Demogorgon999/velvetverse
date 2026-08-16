@@ -1,3 +1,10 @@
+import {
+  getCharacterById,
+} from '../services/characterRepository'
+import type {
+  SavedCharacter,
+} from '../services/characterService'
+
 export type CharacterBrain = {
   identity: {
     species: string
@@ -12,7 +19,10 @@ export type CharacterBrain = {
   motivations: string[]
 }
 
-const characterBrains: Record<number, CharacterBrain> = {
+const builtInCharacterBrains: Record<
+  number,
+  CharacterBrain
+> = {
   1: {
     identity: {
       species: 'Vampire',
@@ -173,10 +183,117 @@ const defaultBrain: CharacterBrain = {
   ],
 }
 
+function isCreatorCharacter(
+  character: unknown,
+): character is SavedCharacter {
+  return (
+    typeof character === 'object' &&
+    character !== null &&
+    'creatorId' in character &&
+    'identity' in character &&
+    'personalityTraits' in character
+  )
+}
+
+function removeEmptyItems(
+  items: string[],
+): string[] {
+  return items
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function createCreatorCharacterBrain(
+  character: SavedCharacter,
+): CharacterBrain {
+  const lore = removeEmptyItems([
+    character.biography,
+    character.description,
+    character.personality,
+    character.world,
+  ])
+
+  const knowledge =
+    removeEmptyItems(character.knowledge)
+
+  const secrets =
+    removeEmptyItems(character.secrets)
+
+  const fears =
+    removeEmptyItems(character.fears)
+
+  const motivations =
+    removeEmptyItems(character.goals)
+
+  return {
+    identity: {
+      species:
+        character.identity.species.trim() ||
+        character.category ||
+        'Unknown',
+
+      age:
+        character.identity.age.trim() ||
+        'Unknown',
+
+      role:
+        character.identity.role.trim() ||
+        character.title ||
+        'Story companion',
+
+      homeland:
+        character.identity.homeland.trim() ||
+        character.world ||
+        'Unknown',
+    },
+
+    lore:
+      lore.length > 0
+        ? lore
+        : defaultBrain.lore,
+
+    knowledge:
+      knowledge.length > 0
+        ? knowledge
+        : removeEmptyItems([
+            character.world,
+            character.description,
+          ]),
+
+    secrets,
+
+    fears:
+      fears.length > 0
+        ? fears
+        : defaultBrain.fears,
+
+    motivations:
+      motivations.length > 0
+        ? motivations
+        : defaultBrain.motivations,
+  }
+}
+
 export function getCharacterBrain(
   characterId: number,
 ): CharacterBrain {
-  return characterBrains[characterId] ?? defaultBrain
+  const builtInBrain =
+    builtInCharacterBrains[characterId]
+
+  if (builtInBrain) {
+    return builtInBrain
+  }
+
+  const character =
+    getCharacterById(characterId)
+
+  if (isCreatorCharacter(character)) {
+    return createCreatorCharacterBrain(
+      character,
+    )
+  }
+
+  return defaultBrain
 }
 
 export function getCharacterBrainSummary(

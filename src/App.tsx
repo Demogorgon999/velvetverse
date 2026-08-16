@@ -1,25 +1,62 @@
-import { Route, Routes } from 'react-router-dom'
+import {
+  Route,
+  Routes,
+} from 'react-router-dom'
+
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import CharactersPage from './pages/CharactersPage'
 import CharacterPage from './pages/CharacterPage'
+import ChatsPage from './pages/ChatsPage'
 import ChatPage from './pages/ChatPage'
 import CreatorStudioPage from './pages/CreatorStudioPage'
 import MyCharactersPage from './pages/MyCharactersPage'
-import MarketplacePage from './pages/MarketplacePage'
+import MarketplacePage from './pages/MarketplaceTemp'
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/characters" element={<CharactersPage />} />
-      <Route path="/characters/:id" element={<CharacterPage />} />
-      <Route path="/chat/:id" element={<ChatPage />} />
+      <Route
+        path="/"
+        element={<LandingPage />}
+      />
+
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+
+      <Route
+        path="/register"
+        element={<RegisterPage />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={<DashboardPage />}
+      />
+
+      <Route
+        path="/characters"
+        element={<CharactersPage />}
+      />
+
+      <Route
+        path="/characters/:id"
+        element={<CharacterPage />}
+      />
+
+      <Route
+        path="/chat"
+        element={<ChatsPage />}
+      />
+
+      <Route
+        path="/chat/:id"
+        element={<ChatPage />}
+      />
 
       <Route
         path="/creator-studio"

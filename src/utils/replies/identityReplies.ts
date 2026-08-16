@@ -6,6 +6,7 @@ export const getIdentityReply: ReplyHandler = ({
   characterName,
   lowerMessage,
   intent,
+  emotion,
 }) => {
   const { brain } = context
 
@@ -24,16 +25,10 @@ export const getIdentityReply: ReplyHandler = ({
   ) {
     return createReply(
       `${characterName} answers calmly. "I am ${brain.identity.age}."`,
-    )
-  }
-
-  if (
-    lowerMessage.includes('what are you') ||
-    lowerMessage.includes('what species are you') ||
-    lowerMessage.includes('are you human')
-  ) {
-    return createReply(
-      `${characterName} meets your gaze. "I am ${brain.identity.species}."`,
+      {
+  emotion: emotion.emotion,
+  animation: emotion.animation,
+},
     )
   }
 
@@ -45,6 +40,10 @@ export const getIdentityReply: ReplyHandler = ({
   ) {
     return createReply(
       `${characterName} replies, "I come from ${brain.identity.homeland}."`,
+      {
+  emotion: emotion.emotion,
+  animation: emotion.animation,
+},
     )
   }
 
@@ -52,12 +51,39 @@ export const getIdentityReply: ReplyHandler = ({
     lowerMessage.includes('what do you do') ||
     lowerMessage.includes('what is your role') ||
     lowerMessage.includes("what's your role") ||
-    lowerMessage.includes('who are you really')
+    lowerMessage.includes('what is your occupation') ||
+    lowerMessage.includes("what's your occupation") ||
+    lowerMessage.includes('who are you really') ||
+    lowerMessage.includes('who are you')
   ) {
     return createReply(
       `${characterName} answers, "I am ${brain.identity.role}."`,
+      {
+        emotion: 'Curious',
+        animation: 'idle',
+      },
     )
   }
 
-  return null
+  if (
+    lowerMessage.includes('what are you') ||
+    lowerMessage.includes('what species are you') ||
+    lowerMessage.includes('are you human')
+  ) {
+    return createReply(
+      `${characterName} meets your gaze. "I am ${brain.identity.species}."`,
+      {
+        emotion: 'Curious',
+        animation: 'idle',
+      },
+    )
+  }
+
+  return createReply(
+    `${characterName} replies, "I am ${brain.identity.role}, a ${brain.identity.species} from ${brain.identity.homeland}."`,
+    {
+      emotion: 'Curious',
+      animation: 'idle',
+    },
+  )
 }

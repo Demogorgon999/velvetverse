@@ -1,14 +1,22 @@
-import { Link, NavLink } from 'react-router-dom'
+import {
+  Link,
+  NavLink,
+} from 'react-router-dom'
 
 function Navbar() {
   return (
-    <header className="site-navbar">
-      <Link to="/dashboard" className="navbar-logo">
+    <header className="navbar">
+      <Link
+        to="/"
+        className="navbar-brand"
+      >
         VelvetVerse
       </Link>
 
       <nav className="navbar-links">
-        <NavLink to="/dashboard">Home</NavLink>
+        <NavLink to="/dashboard">
+          Home
+        </NavLink>
 
         <NavLink to="/marketplace">
           Marketplace
@@ -26,7 +34,7 @@ function Navbar() {
           Creator Studio
         </NavLink>
 
-        <NavLink to="/chat/1">
+        <NavLink to="/chat">
           Chat
         </NavLink>
       </nav>
