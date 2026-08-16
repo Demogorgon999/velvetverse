@@ -6,5 +6,13 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"
-  }
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "velvetverse-db",
+      "database_id": "08ff5cd7-bcfa-4aa5-a0f5-54a3af244220"
+    }
+  ]
 }
