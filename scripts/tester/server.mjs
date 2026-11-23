@@ -9,6 +9,7 @@ import { approvedRecentDialogue,captureDialogueEvent,buildTesterBody } from './p
 import { screenTesterTurn } from './guardrails.mjs'
 import { GuestLiveGate } from './guestLivePolicy.mjs'
 import {buildGuestMemoryView,guestCorePacket,buildGuestBody,captureGuestDialogue,guestVisibleTranscript} from './guestMemoryView.mjs'
+import {storyPresentation} from './storyPresentation.mjs'
 
 export async function createTesterServer({gate,accounts,transport,now=()=>Date.now(),authOptions={},guestPlayer=false,localGuestFixture=false,requestPolicy=null,playerDirectory=fileURLToPath(new URL('../../.guest-review/player-assets/',import.meta.url))}){
   if(localGuestFixture&&!(gate.guestFixture===true&&gate.policy.mode==='fake'))throw new GateError('local_fixture_requires_fake_gate',403)
@@ -37,6 +38,7 @@ export async function createTesterServer({gate,accounts,transport,now=()=>Date.n
     basePath:'/velvetverse',
     requestPolicy,
     screenTurn:screenTesterTurn,
+    guestStories:guestPlayer,
     ...(guestPlayer?{validateLabelFactId:value=>['alias','meeting','promise'].includes(value)||typeof value==='string'&&/^fact-[a-z0-9-]{1,32}$/.test(value),projectAlias:(save,scope)=>buildGuestMemoryView(save,scope,{spoken:'',visibleAction:''}).packet.alias}:{}),
     authorize(req,url){
       if(!url.pathname.startsWith('/acceptance/'))return
@@ -46,7 +48,7 @@ export async function createTesterServer({gate,accounts,transport,now=()=>Date.n
       if(url.pathname==='/acceptance/close'||url.pathname==='/acceptance/readiness')throw new GateError('owner_only',403)
       req.authenticatedTesterId=session.accountId;req.authenticatedSessionTag=session.tag
     },
-    projectSave:(save,scope)=>({conversation:save.conversation,transcript:guestPlayer?guestVisibleTranscript(save,scope):save.transcript,...(!guestPlayer?{labels:save.labels}:{}),...(playerEnabled?{display:display(save)}:{})}),
+    projectSave:(save,scope)=>({conversation:save.conversation,transcript:guestPlayer?guestVisibleTranscript(save,scope):save.transcript,...(guestPlayer?storyPresentation(save,scope):{labels:save.labels}),...(playerEnabled?{display:display(save)}:{})}),
     work:async request=>{
       let view=null
       if(guestPlayer){try{view=buildGuestMemoryView(request.save,request.scope,request.input)}catch(error){throw Object.assign(new GateError(error.code??'invalid_guest_view_before_dispatch',400),{knownNoDispatch:true})}}

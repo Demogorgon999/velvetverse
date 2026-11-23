@@ -42,6 +42,9 @@
     "scripts/guest-runtime/services/interactionAssessmentService.ts",
     "scripts/guest-runtime/utils/relationshipEngine.ts",
     "scripts/guest-runtime/utils/replies/index.ts",
-    "scripts/guest-runtime/utils/replies/types.ts"
+    "scripts/guest-runtime/utils/replies/types.ts",
+    "scripts/tester/storyPresentation.mjs",
+    "tests/guest-stories.test.ts",
+    "STORY-RETURN-REVIEW.md"
   ]
 }

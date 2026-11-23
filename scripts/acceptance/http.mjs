@@ -3,8 +3,9 @@ import { GateError, scopeKey } from './gate.mjs'
 import { runIsolatedRoleplay, validateFictionalInput } from './orchestration.mjs'
 import { appendMemoryLabel } from '../../src/experimental/memoryLabels.ts'
 import { authorizedMockAlias } from '../../src/experimental/mockLabelIntegration.ts'
+import {randomUUID} from 'node:crypto'
 
-export function createAcceptanceHttp(gate, { middleware = null, readiness = null, authorize = null, requestPolicy=null, basePath = '', screenTurn = null, validateLabelFactId=value=>['alias','meeting','promise'].includes(value), projectAlias=null, projectSave = save => save, work = request => runIsolatedRoleplay(request, gate.policy) } = {}) {
+export function createAcceptanceHttp(gate, { middleware = null, readiness = null, authorize = null, requestPolicy=null, basePath = '', screenTurn = null, guestStories=false, validateLabelFactId=value=>['alias','meeting','promise'].includes(value), projectAlias=null, projectSave = save => save, work = request => runIsolatedRoleplay(request, gate.policy) } = {}) {
   if(!['','/velvetverse'].includes(basePath))throw new GateError('unsupported_route_prefix',503)
   const reply = (res, status, body) => {
     const text = JSON.stringify(body)
@@ -34,10 +35,17 @@ export function createAcceptanceHttp(gate, { middleware = null, readiness = null
       return
     }
     try {
+      if(guestStories&&req.method==='GET'&&url.pathname==='/acceptance/stories'){
+        const testerId=req.authenticatedTesterId,characterId=Number(url.searchParams.get('characterId'))
+        gate.validateScope({testerId,characterId,storyId:'story-one'})
+        const stories=Object.entries(gate.data.saves).flatMap(([key,save])=>{const [account,storyId,character]=JSON.parse(key);return account===testerId&&character===characterId?[{id:storyId,title:save.storyTitle??'First Story'}]:[]})
+        reply(res,200,{stories});return
+      }
       if (req.method === 'GET' && url.pathname === '/acceptance/readiness' && readiness) { reply(res, 200, readiness); return }
-      if (req.method === 'GET' && url.pathname === '/acceptance/status') {
+      if (req.method === 'GET' && (url.pathname === '/acceptance/status'||guestStories&&url.pathname==='/acceptance/resume')) {
         const scope = { testerId: url.searchParams.get('testerId'), storyId: url.searchParams.get('storyId'), characterId: Number(url.searchParams.get('characterId')) }
         if (req.authenticatedTesterId && scope.testerId !== req.authenticatedTesterId) throw new GateError('account_scope_denied', 403)
+        if(url.pathname==='/acceptance/resume'&&scope.storyId!=='story-one'&&!Object.hasOwn(gate.data.saves,scopeKey(scope)))throw new GateError('story_not_owned',404)
         reply(res, 200, progress(scope)); return
       }
       if (req.method !== 'POST' || req.headers.origin !== expectedOrigin || !String(req.headers['content-type']).startsWith('application/json')) throw new GateError('same_origin_json_post_required', 403)
@@ -47,8 +55,20 @@ export function createAcceptanceHttp(gate, { middleware = null, readiness = null
       let body
       try { body = JSON.parse(text) } catch { throw new GateError('invalid_json', 400) }
       if (url.pathname === '/acceptance/close') { reply(res, 200, await gate.closeTest()); return }
-      const { scope } = body; gate.validateScope(scope)
+      const { scope } = body
       if (req.authenticatedTesterId && scope.testerId !== req.authenticatedTesterId) throw new GateError('account_scope_denied', 403)
+      gate.validateScope(scope)
+      if(guestStories&&url.pathname==='/acceptance/new-story'){
+        const created={testerId:req.authenticatedTesterId,characterId:scope.characterId,storyId:'story-'+randomUUID().replaceAll('-','')}
+        await gate.atomic(()=>{
+          gate.active();gate.validateScope(created);gate.checkStoryBound(created)
+          if(Object.values(gate.data.entries).some(entry=>['reserved','held'].includes(entry.status)))throw new GateError('story_creation_busy_or_held',409)
+          const key=scopeKey(created);if(Object.hasOwn(gate.data.saves,key))throw new GateError('story_id_collision',409)
+          const own=Object.keys(gate.data.saves).filter(key=>JSON.parse(key)[0]===created.testerId).length
+          gate.data.saves[key]={...gate.getSave(created),storyTitle:'Story '+(own+1)};gate.persist()
+        })
+        reply(res,200,{storyId:created.storyId,progress:progress(created)});return
+      }
       if (['openai-owner-smoke','openai-tester'].includes(gate.policy.provider) && ['turn', 'label'].some(action => url.pathname === '/acceptance/' + action) && body.providerConsent !== gate.policy.provider) throw new GateError('explicit_live_browser_consent_required', 403)
       if (url.pathname === '/acceptance/turn') {
         validateFictionalInput(body.input)

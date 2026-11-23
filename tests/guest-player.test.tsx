@@ -27,6 +27,24 @@ it('keeps the same Seraphina player behind guest login and clears displayed prog
   expect(screen.queryByText('[MOCK GUEST] A saved guest reply.')).toBeNull();expect(screen.getByLabelText('Guest password')).toHaveProperty('value','')
   expect(fetchMock.mock.calls.every(([url])=>String(url).startsWith('/velvetverse/'))).toBe(true)
 })
+it('shows grounded return/notes, switches saves, reuses witnessed correction/revocation, creates a clean story and clears expired-auth views without generation',async()=>{
+ HTMLElement.prototype.scrollIntoView=vi.fn()
+ const auth={accountId:'guest',csrf:'synthetic-csrf',mode:'fake',consent:'tester-fake'}
+ const story=(alias:string|null,fact:string)=>({alias,save:{conversation:1,transcript:[{spoken:fact,visibleAction:'',reply:'[MOCK] A recorded reply.'}],storyNotes:alias?[{key:'alias',value:alias},{key:'fact-route',value:fact}]:[],returnSummary:{heading:'Previously with Seraphina…',lines:[fact]}},budget:{attemptsRemaining:20,availableMicros:225000,heldMicros:0,expired:false,testClosed:false},pending:[]})
+ const saves:Record<string,ReturnType<typeof story>>={'story-one':story('Copper','The bridge is closed.'),'story-b':story('Ash','The ferry is open.')}
+ let signedIn=true,expire=false
+ const network=vi.fn(async(url,options)=>{const path=new URL(String(url),'http://fixture.invalid');if(path.pathname.endsWith('/tester/session'))return Response.json(auth);if(path.pathname.endsWith('/tester/login')){signedIn=true;return Response.json(auth)};if(!signedIn||expire){expire=false;signedIn=false;return Response.json({error:'session_expired_or_logged_out'},{status:401})};if(path.pathname.endsWith('/stories'))return Response.json({stories:Object.keys(saves).map((id,i)=>({id,title:'Story '+(i+1)}))});if(path.pathname.endsWith('/resume'))return Response.json(saves[path.searchParams.get('storyId')!]);const body=JSON.parse(options.body);if(path.pathname.endsWith('/new-story')){saves['story-new']=story(null,'No shared events recorded.');saves['story-new'].save.transcript=[];return Response.json({storyId:'story-new',progress:saves['story-new']})};if(path.pathname.endsWith('/label')){expect(body.witnessed).toBe(true);const save=saves[body.scope.storyId];save.alias=body.action==='revoke'?null:body.value;save.save.storyNotes=save.alias?[{key:'alias',value:save.alias}]:[];return Response.json(save)};throw Error('Unexpected route')})
+ vi.stubGlobal('fetch',network);render(<MemoryRouter><OwnerPlayer audience="guest"/></MemoryRouter>)
+ expect(await screen.findByRole('heading',{name:'Previously with Seraphina…'})).toBeTruthy();expect(screen.getByText('Copper')).toBeTruthy()
+ fireEvent.click(screen.getByRole('button',{name:'Correct alias'}));expect(screen.getByLabelText(/I explicitly authorise/)).toHaveProperty('checked',false)
+ fireEvent.change(screen.getByLabelText('Shared fact'),{target:{value:'Lark'}});fireEvent.click(screen.getByLabelText(/I explicitly authorise/));fireEvent.click(screen.getByRole('button',{name:'Save shared memory'}));await screen.findByRole('button',{name:'Revoke alias'})
+ await waitFor(()=>expect(screen.getByText('Lark')).toBeTruthy());fireEvent.click(screen.getByRole('button',{name:'Revoke alias'}));fireEvent.click(screen.getByLabelText(/I explicitly authorise/));fireEvent.click(screen.getByRole('button',{name:'Save shared memory'}));await waitFor(()=>expect(screen.queryByText('Lark')).toBeNull())
+ fireEvent.click(screen.getByRole('button',{name:/Resume Story 2/}));await screen.findByText('Ash');expect(screen.queryByText('Copper')).toBeNull()
+ expire=true;fireEvent.click(screen.getByRole('button',{name:/Resume Story 1/}));await screen.findByRole('button',{name:'Sign in'});expect(screen.queryByText('Ash')).toBeNull()
+ fireEvent.change(screen.getByLabelText('Guest password'),{target:{value:'synthetic-password-only'}});fireEvent.click(screen.getByRole('button',{name:'Sign in'}));await screen.findByRole('button',{name:/Resume Story 2/});fireEvent.click(screen.getByRole('button',{name:/Resume Story 2/}));await screen.findByText('Ash')
+ fireEvent.click(screen.getByRole('button',{name:'+ New Story'}));await screen.findByText('No confirmed notes yet.');await waitFor(()=>expect(screen.getByRole('textbox',{name:'Message Lady Seraphina'})).toHaveProperty('disabled',false));expect(screen.queryByText('Ash')).toBeNull();expect(saves['story-one'].save.transcript).toHaveLength(1)
+ expect(network.mock.calls.some(([url])=>String(url).endsWith('/acceptance/turn'))).toBe(false)
+})
 it('authors explicit scoped guest facts/corrections/revocations through the existing route without a model turn',async()=>{
  HTMLElement.prototype.scrollIntoView=vi.fn()
  const auth={accountId:'guest',csrf:'synthetic-csrf',mode:'live',consent:'openai-tester'}

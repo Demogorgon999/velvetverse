@@ -10,5 +10,5 @@ service.server.once('error',()=>{console.error('Guest mock listener unavailable;
 service.server.listen(0,'127.0.0.1',()=>{
  console.log(`MOCK ONLY: http://127.0.0.1:${service.server.address().port}/velvetverse/`)
  console.log('Synthetic fixture login: guest / synthetic-guest-only. No model traffic. Ctrl+C stops this instance.')
- console.log('Persistent isolated mock story; 20 attempts or two hours, no automatic renewal. New Chat clears visible transcript.')
+ console.log('Persistent isolated mock story; 20 attempts or two hours, no automatic renewal. New Story preserves earlier stories; Resume restores saved dialogue.')
 })
