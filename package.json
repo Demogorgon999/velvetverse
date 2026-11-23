@@ -12,7 +12,8 @@
     "eval:memory": "node scripts/run-memory-evaluation.mjs",
     "eval:memory:stress": "node scripts/run-memory-stress.mjs",
     "eval:memory:repeat": "node scripts/check-memory-repeat.mjs",
-    "eval:memory:labels": "node scripts/run-memory-labels.mjs"
+    "eval:memory:labels": "node scripts/run-memory-labels.mjs",
+    "dev:guest": "node scripts/run-guest.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

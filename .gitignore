@@ -41,3 +41,6 @@ staging/
 /*-wire-proof.json
 /*-wire-capture.json
 /*-dry-capture.json
+
+# Isolated fake guest integration runtime
+.guest-review/
