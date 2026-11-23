@@ -21,3 +21,23 @@ Thumbs.db
 
 # VS Code
 .vscode/settings.json.dev.vars
+
+# Local experimental pilot/runtime artifacts (never publish)
+.acceptance-mock/
+.acceptance-live-smoke/
+.tester-fake/
+.tester-live/
+.owner-playthrough/
+.owner-playthrough-fake/
+.owner-player-build/
+.guest-pilot/
+.guest-live/
+.guest-tls/
+.guest-tools/
+staging/
+*.pem
+*.key
+/guest-host-readiness.json
+/*-wire-proof.json
+/*-wire-capture.json
+/*-dry-capture.json
